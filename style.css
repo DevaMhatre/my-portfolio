@@ -1,17 +1,18 @@
 :root {
-  /* Colors */
-  --bg-color: #0A0A0A;
+  /* Colors Styles */
+  --bg-color: #0a0a0a;
   --surface-color: #111111;
   --surface-border: #222222;
   --surface-border-hover: #333333;
-  --text-primary: #EDEDED;
+  --text-primary: #ededed;
   --text-secondary: #888888;
   --bg-transparent-overlay: rgba(10, 10, 10, 0.8);
   --bg-highlight: rgba(255, 255, 255, 0.03);
   --bg-badge: rgba(255, 255, 255, 0.05);
 
   /* Typography */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
   --font-mono: monospace;
 
   /* Spacing */
@@ -33,11 +34,11 @@
   --z-index-nav: 100;
 
   /* Terminal Colors */
-  --terminal-red: #FF5F56;
-  --terminal-yellow: #FFBD2E;
-  --terminal-green: #27C93F;
-  --terminal-link: #58A6FF;
-  --terminal-code: #E6E6E6;
+  --terminal-red: #ff5f56;
+  --terminal-yellow: #ffbd2e;
+  --terminal-green: #27c93f;
+  --terminal-link: #58a6ff;
+  --terminal-code: #e6e6e6;
 }
 
 * {
@@ -247,7 +248,8 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform var(--transition-fast), border-color var(--transition-fast);
+  transition: transform var(--transition-fast),
+    border-color var(--transition-fast);
   aspect-ratio: 2/1;
 }
 
@@ -285,7 +287,7 @@ main {
 }
 
 .timeline-entry::before {
-  content: '';
+  content: "";
   position: absolute;
   left: calc(var(--spacing-xl) * -1 - 0.35rem);
   top: 0.25rem;
@@ -487,7 +489,6 @@ main {
 }
 
 @keyframes blink {
-
   0%,
   100% {
     opacity: 1;
@@ -503,7 +504,8 @@ main {
   opacity: 0;
   transform: translateY(15px);
   visibility: hidden;
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
