@@ -1,0 +1,9 @@
+{
+  "name": "deva-mhatre-portfolio",
+  "version": "1.0.0",
+  "description": "Minimalist Professional Portfolio",
+  "scripts": {
+    "dev": "python3 -m http.server 3000",
+    "start": "python3 -m http.server 3000"
+  }
+}
