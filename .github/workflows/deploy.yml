@@ -1,0 +1,8 @@
+script: |
+  cd /var/www/html
+  # Ensure the server's git remote is also correct
+  git remote set-url origin git@github.com:DevaMhatre/my-portfolio.git
+  git pull origin main
+  sudo chown -R www-data:www-data /var/www/html
+  sudo chmod -R 755 /var/www/html
+  sudo systemctl restart nginx
