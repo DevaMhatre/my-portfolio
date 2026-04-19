@@ -46,6 +46,9 @@
   margin: 0;
   padding: 0;
 }
+section {
+  scroll-margin-top: 100px;
+}
 
 html {
   scroll-behavior: smooth;
