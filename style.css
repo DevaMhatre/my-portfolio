@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url("fonts/inter-latin.woff2") format("woff2");
+}
+
 :root {
   /* Colors Style*/
   --bg-color: #0a0a0a;
@@ -95,6 +103,19 @@ h4 {
   margin-top: var(--spacing-lg);
 }
 
+/* Visually hidden but still readable by screen readers / crawlers */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Navbar */
 .navbar {
   position: fixed;
@@ -135,6 +156,40 @@ h4 {
 
 .nav-links a:hover {
   color: var(--text-primary);
+}
+
+/* Mobile Nav Toggle (hamburger) */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 22px;
+  height: 16px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.nav-toggle span {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: var(--text-primary);
+  border-radius: 2px;
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+}
+
+.nav-toggle[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.nav-toggle[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+
+.nav-toggle[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
 }
 
 /* Content Container */
@@ -551,7 +606,31 @@ main {
     left: -1.85rem;
   }
 
+  .nav-toggle {
+    display: flex;
+  }
+
   .nav-links {
-    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    background: var(--bg-color);
+    border-bottom: 1px solid var(--surface-border);
+    padding: 0 2rem;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height var(--transition-fast), opacity var(--transition-fast),
+      padding var(--transition-fast);
+  }
+
+  .nav-links.open {
+    max-height: 300px;
+    opacity: 1;
+    padding: var(--spacing-md) 2rem var(--spacing-lg);
   }
 }

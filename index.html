@@ -1,7 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-  <!--  -->
-
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,13 +9,29 @@
     />
     <title>Deva Mhatre | Software Engineer</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
+    <link rel="canonical" href="https://devamhatre.cloud/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Deva Mhatre | Software Engineer" />
+    <meta
+      property="og:description"
+      content="Deva Mhatre - Software Engineer specializing in the MERN Stack and React Native."
     />
+    <meta property="og:url" content="https://devamhatre.cloud/" />
+    <meta property="og:image" content="https://devamhatre.cloud/image_0.jpg" />
+    <meta property="og:image:width" content="1067" />
+    <meta property="og:image:height" content="1328" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Deva Mhatre | Software Engineer" />
+    <meta
+      name="twitter:description"
+      content="Deva Mhatre - Software Engineer specializing in the MERN Stack and React Native."
+    />
+    <meta name="twitter:image" content="https://devamhatre.cloud/image_0.jpg" />
+
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="preload" href="fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="style.css" />
     <script type="application/ld+json">
       {
@@ -26,6 +40,7 @@
         "name": "Deva Mhatre",
         "jobTitle": "Software Engineer",
         "url": "https://devamhatre.cloud",
+        "image": "https://devamhatre.cloud/image_0.jpg",
         "sameAs": [
           "https://www.linkedin.com/in/deva-mhatre/",
           "https://github.com/DevaMhatre"
@@ -33,7 +48,25 @@
         "worksFor": {
           "@type": "Organization",
           "name": "BuzzyBrains Software"
-        }
+        },
+        "knowsAbout": [
+          "React.js",
+          "React Native",
+          "Node.js",
+          "MongoDB",
+          "Express.js",
+          "JavaScript",
+          "TypeScript",
+          "AWS"
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org/",
+        "@type": "WebSite",
+        "name": "Deva Mhatre | Software Engineer",
+        "url": "https://devamhatre.cloud"
       }
     </script>
   </head>
@@ -43,7 +76,18 @@
     <nav class="navbar">
       <div class="nav-content">
         <a href="#" class="brand">Deva Mhatre</a>
-        <ul class="nav-links">
+        <button
+          class="nav-toggle"
+          id="nav-toggle"
+          aria-label="Toggle navigation menu"
+          aria-expanded="false"
+          aria-controls="nav-links"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <ul class="nav-links" id="nav-links">
           <li><a href="#experience">Experience</a></li>
           <li><a href="#experiments">Projects</a></li>
           <li><a href="#academic">Education</a></li>
@@ -58,7 +102,8 @@
       <section id="hero" class="hero">
         <div class="hero-content fade-in-section">
           <h1 class="headline">
-            Building <br /><span class="text-glow"
+            <span class="visually-hidden">Deva Mhatre —</span> Building <br /><span
+              class="text-glow"
               >Scalable Web & Mobile Systems.</span
             >
           </h1>
@@ -79,13 +124,17 @@
           </div>
         </div>
         <div class="hero-image-container fade-in-section">
-          <img
-            src="image_0.png"
-            alt="Deva Mhatre - Software Engineer"
-            class="headshot"
-            width="400"
-            height="500"
-          />
+          <picture>
+            <source srcset="image_0.webp" type="image/webp" />
+            <img
+              src="image_0.jpg"
+              alt="Deva Mhatre - Software Engineer"
+              class="headshot"
+              width="400"
+              height="500"
+              fetchpriority="high"
+            />
+          </picture>
         </div>
       </section>
       <!-- HERO SECTION END -->
@@ -222,16 +271,27 @@
           <!-- EXPERIMENT CARD END -->
 
           <!-- EXPERIMENT CARD START -->
-          <!-- <article class="experiment-card">
-          <div class="experiment-header">
-            <h3>Active R&D: Offline-First Edge Architectures</h3>
-            <div class="tech-badges">
-              <span class="badge">React Native</span>
-              <span class="badge">WatermelonDB</span>
+          <article class="experiment-card">
+            <div class="experiment-header">
+              <h3>
+                <a
+                  href="https://pos.devamhatre.cloud"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >POS & Inventory Management &#8599;</a
+                >
+              </h3>
+              <div class="tech-badges">
+                <span class="badge">MERN Stack</span>
+                <span class="badge">JWT Auth</span>
+              </div>
             </div>
-          </div>
-          <p>Offline-capable application currently in development for the hospitality sector.</p>
-        </article> -->
+            <p>
+              Full-stack point-of-sale and inventory system with role-based
+              admin/customer dashboards, product image uploads, PDF receipts,
+              and live sales analytics.
+            </p>
+          </article>
           <!-- EXPERIMENT CARD END -->
         </div>
       </section>
@@ -301,5 +361,3 @@
     <script src="main.js"></script>
   </body>
 </html>
-
-<!-- "phone": "<a href="tel:+919082192230">+91-9082192230</a>", -->

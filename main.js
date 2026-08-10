@@ -19,5 +19,24 @@ document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll(".fade-in-section").forEach((section) => {
     observer.observe(section);
   });
+
+  // Mobile nav toggle
+  const navToggle = document.getElementById("nav-toggle");
+  const navLinks = document.getElementById("nav-links");
+
+  if (navToggle && navLinks) {
+    const closeMenu = () => {
+      navToggle.setAttribute("aria-expanded", "false");
+      navLinks.classList.remove("open");
+    };
+
+    navToggle.addEventListener("click", () => {
+      const isOpen = navLinks.classList.toggle("open");
+      navToggle.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    navLinks.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", closeMenu);
+    });
+  }
 });
-//
