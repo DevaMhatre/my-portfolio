@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A developer's philosophy — four questions that produce an architecture before you write a single line of code.">
+
+  <!-- Easter egg page — reachable only via the hidden tap trigger on the portfolio nav logo -->
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Theme colour for mobile browser chrome -->
+  <meta name="theme-color" content="#9A7418" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#E8A224" media="(prefers-color-scheme: dark)">
+
+  <!-- This page has no theme control of its own — it inherits Simple/Technical from the
+       parent portfolio's nav toggle (same-origin localStorage key "contentMode"), applied
+       here before first paint so there's no flash of the wrong theme. -->
+  <script>
+    (function () {
+      var parentMode = localStorage.getItem('contentMode');
+      document.documentElement.setAttribute('data-theme', parentMode === 'technical' ? 'dark' : 'light');
+    })();
+  </script>
+
+  <!-- Open Graph -->
+  <meta property="og:title"       content="The Architectural Mind">
+  <meta property="og:description" content="How to think in systems before you write a single line of code.">
+  <meta property="og:type"        content="article">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary">
+  <meta name="twitter:title"       content="The Architectural Mind">
+  <meta name="twitter:description" content="How to think in systems before you write a single line of code.">
+
+  <title>The Architectural Mind — A Developer's Philosophy</title>
+
+  <!-- Emoji favicon — no image file needed -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏛</text></svg>">
+
+  <style>
+  /* ─────────────────────────────────────────────────────────────────────
+     Design Tokens
+  ───────────────────────────────────────────────────────────────────── */
+  :root {
+    --bg:        #F7F3EC;
+    --surface:   #FFFFFF;
+    --lift:      #F0EBE0;
+    --border:    #DDD8CE;
+    --rule:      #E8E3D8;
+    --ink:       #1C1814;
+    --secondary: #5A5450;
+    --muted:     #8C8780;
+    --gold:      #9A7418;
+    --gold-bg:   #FAF1D8;
+    --gold-mid:  #C8960E;
+    --blue:      #1D4ED8;
+    --blue-bg:   #EFF6FF;
+    --purple:    #7E22CE;
+    --green:     #15803D;
+    --amber:     #92400E;
+    --mono-bg:   #F2EEE5;
+
+    --font-serif: Georgia, 'Times New Roman', serif;
+    --font-body:  system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono:  ui-monospace, 'Cascadia Code', 'Fira Code', Consolas, 'Courier New', monospace;
+    --max-w: 720px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:        #0D1525;
+      --surface:   #142038;
+      --lift:      #1A2C4A;
+      --border:    #1E2E50;
+      --rule:      #17233D;
+      --ink:       #E2DAC8;
+      --secondary: #8A9AB8;
+      --muted:     #4A5A78;
+      --gold:      #E8A224;
+      --gold-bg:   #241A08;
+      --gold-mid:  #C98F2A;
+      --blue:      #4AACBE;
+      --blue-bg:   #0D2530;
+      --purple:    #C084FC;
+      --green:     #4ADE80;
+      --amber:     #FBBF24;
+      --mono-bg:   #091018;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg:        #0D1525;
+    --surface:   #142038;
+    --lift:      #1A2C4A;
+    --border:    #1E2E50;
+    --rule:      #17233D;
+    --ink:       #E2DAC8;
+    --secondary: #8A9AB8;
+    --muted:     #4A5A78;
+    --gold:      #E8A224;
+    --gold-bg:   #241A08;
+    --gold-mid:  #C98F2A;
+    --blue:      #4AACBE;
+    --blue-bg:   #0D2530;
+    --purple:    #C084FC;
+    --green:     #4ADE80;
+    --amber:     #FBBF24;
+    --mono-bg:   #091018;
+  }
+
+  :root[data-theme="light"] {
+    --bg:        #F7F3EC;
+    --surface:   #FFFFFF;
+    --lift:      #F0EBE0;
+    --border:    #DDD8CE;
+    --rule:      #E8E3D8;
+    --ink:       #1C1814;
+    --secondary: #5A5450;
+    --muted:     #8C8780;
+    --gold:      #9A7418;
+    --gold-bg:   #FAF1D8;
+    --gold-mid:  #C8960E;
+    --blue:      #1D4ED8;
+    --blue-bg:   #EFF6FF;
+    --purple:    #7E22CE;
+    --green:     #15803D;
+    --amber:     #92400E;
+    --mono-bg:   #F2EEE5;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Reset
+  ───────────────────────────────────────────────────────────────────── */
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-size: 16px;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    max-width: 100vw;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  img, video, svg { max-width: 100%; display: block; }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Accessibility
+  ───────────────────────────────────────────────────────────────────── */
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: 1rem;
+    padding: 0.5rem 1rem;
+    background: var(--gold);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    border-radius: 0 0 6px 6px;
+    z-index: 999;
+    text-decoration: none;
+    transition: top 0.1s;
+  }
+
+  .skip-link:focus { top: 0; }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Back link
+  ───────────────────────────────────────────────────────────────────── */
+  .back-link {
+    position: fixed;
+    top: 1.1rem;
+    left: 1.1rem;
+    z-index: 100;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 2.25rem;
+    padding: 0 0.9rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--secondary);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+  }
+
+  .back-link:hover {
+    background: var(--lift);
+    color: var(--ink);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.14);
+  }
+
+  @media (max-width: 600px) {
+    .back-link { top: 0.85rem; left: 0.85rem; height: 2rem; padding: 0 0.7rem; font-size: 11px; }
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Page shell
+  ───────────────────────────────────────────────────────────────────── */
+  .page {
+    max-width: var(--max-w);
+    width: 100%;
+    margin: 0 auto;
+    padding: 3.5rem 1.75rem 6rem;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Header
+  ───────────────────────────────────────────────────────────────────── */
+  .site-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.1rem;
+  }
+
+  .site-header h1 {
+    font-family: var(--font-serif);
+    font-size: clamp(1.85rem, 5vw, 2.75rem);
+    font-weight: normal;
+    line-height: 1.18;
+    color: var(--ink);
+    margin-bottom: 0.85rem;
+    text-wrap: balance;
+  }
+
+  .header-sub {
+    font-size: 15px;
+    color: var(--secondary);
+    font-style: italic;
+    max-width: 460px;
+    margin: 0 auto;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Epigraph
+  ───────────────────────────────────────────────────────────────────── */
+  .epigraph {
+    text-align: center;
+    margin-bottom: 3.5rem;
+    padding: 0 1rem;
+    border: none;
+  }
+
+  .epigraph p {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--secondary);
+    line-height: 1.7;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Sections
+  ───────────────────────────────────────────────────────────────────── */
+  .content-section { margin-bottom: 3.75rem; }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    user-select: none;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  h2 {
+    font-family: var(--font-serif);
+    font-size: 1.45rem;
+    font-weight: normal;
+    line-height: 1.3;
+    color: var(--ink);
+    margin-bottom: 0.9rem;
+    text-wrap: balance;
+  }
+
+  p {
+    font-size: 15px;
+    color: var(--secondary);
+    margin-bottom: 1rem;
+    line-height: 1.75;
+  }
+
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 600; color: var(--ink); }
+
+  ::selection { background: var(--gold-bg); color: var(--ink); }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Shift comparison
+  ───────────────────────────────────────────────────────────────────── */
+  .shift-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    overflow: hidden;
+    margin-top: 1.5rem;
+    background: var(--border);
+    gap: 1px;
+  }
+
+  .shift-cell {
+    background: var(--surface);
+    padding: 1.5rem 1.5rem 1.75rem;
+  }
+
+  .shift-badge {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 0.85rem;
+  }
+
+  .shift-cell.junior .shift-badge { color: var(--muted); }
+  .shift-cell.senior .shift-badge { color: var(--gold); }
+
+  .shift-q {
+    font-family: var(--font-serif);
+    font-size: 1.05rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+
+  .shift-cell.senior .shift-q { color: var(--gold-mid); }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Three questions
+  ───────────────────────────────────────────────────────────────────── */
+  .tq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .tq-item {
+    display: grid;
+    grid-template-columns: 2.25rem 1fr;
+    gap: 0.9rem;
+    align-items: start;
+  }
+
+  .tq-num {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: var(--gold-bg);
+    color: var(--gold);
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+    border: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+  }
+
+  .tq-title {
+    font-family: var(--font-serif);
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--ink);
+    margin-bottom: 0.4rem;
+  }
+
+  .tq-desc {
+    font-size: 14.5px;
+    color: var(--secondary);
+    line-height: 1.7;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Framework card
+  ───────────────────────────────────────────────────────────────────── */
+  .framework-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 1.5rem;
+    box-shadow: 0 1px 16px rgba(0,0,0,0.05);
+  }
+
+  .fc-header {
+    background: var(--gold-bg);
+    border-bottom: 1px solid var(--border);
+    padding: 0.9rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .fc-header-label {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  .fc-header-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    opacity: 0.5;
+  }
+
+  .fc-feature-row {
+    padding: 1.1rem 1.5rem;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+  }
+
+  .fc-feature-lbl {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .fc-feature-input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    background: transparent;
+    font-family: var(--font-serif);
+    font-size: 1.05rem;
+    color: var(--ink);
+    padding: 0.15rem 0;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .fc-feature-input::placeholder {
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .fc-feature-input:focus { border-bottom-color: var(--gold); }
+
+  .fc-quadrants {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--border);
+    gap: 1px;
+  }
+
+  .fc-q {
+    background: var(--surface);
+    padding: 1.4rem 1.5rem 1.6rem;
+  }
+
+  .fc-q-title {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+
+  .fc-q:nth-child(1) .fc-q-title { color: var(--blue); }
+  .fc-q:nth-child(2) .fc-q-title { color: var(--purple); }
+  .fc-q:nth-child(3) .fc-q-title { color: var(--green); }
+  .fc-q:nth-child(4) .fc-q-title { color: var(--amber); }
+
+  .fc-q-sub {
+    font-size: 11.5px;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .fc-lines { display: flex; flex-direction: column; gap: 0.55rem; }
+
+  .fc-line {
+    height: 1.65rem;
+    border-bottom: 1px dotted var(--border);
+  }
+
+  .fc-footer {
+    padding: 0.85rem 1.5rem;
+    border-top: 1px solid var(--rule);
+    background: var(--lift);
+  }
+
+  .fc-footer p {
+    font-size: 12.5px;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 0;
+    text-align: center;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Insight pull-quote
+  ───────────────────────────────────────────────────────────────────── */
+  .insight {
+    background: var(--gold-bg);
+    border-left: 3px solid var(--gold);
+    padding: 1.1rem 1.4rem;
+    border-radius: 0 6px 6px 0;
+    margin: 1.5rem 0;
+  }
+
+  .insight p {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--ink);
+    margin-bottom: 0;
+    line-height: 1.7;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Code blocks
+  ───────────────────────────────────────────────────────────────────── */
+  .code-wrap {
+    margin: 1.25rem 0;
+    border-radius: 9px;
+    overflow: clip; /* clips visually without blocking inner scroll */
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.6rem 1.1rem;
+    background: var(--lift);
+    border-bottom: 1px solid var(--border);
+    user-select: none;
+  }
+
+  .code-dots { display: flex; gap: 5px; flex-shrink: 0; }
+
+  .code-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: block;
+  }
+
+  .code-dots span:nth-child(1) { background: #FF5F57; }
+  .code-dots span:nth-child(2) { background: #FEBC2E; }
+  .code-dots span:nth-child(3) { background: #28C840; }
+
+  .code-lang {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  pre.code-block {
+    display: block;
+    background: var(--mono-bg);
+    padding: 1.35rem 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 2;
+    color: var(--secondary);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0;
+    white-space: pre;
+    tab-size: 2;
+  }
+
+  pre.code-block code { font-family: inherit; background: none; }
+
+  .code-block .cm  { color: var(--muted); font-style: italic; }
+  .code-block .kw  { color: var(--blue); font-weight: 500; }
+  .code-block .str { color: var(--gold); }
+  .code-block .ok  { color: var(--green); font-weight: 500; }
+  .code-block .err { color: #DC2626; }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Why table
+  ───────────────────────────────────────────────────────────────────── */
+  .why-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 1.25rem; }
+
+  .why-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  .why-table th {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 0 1.25rem 0.7rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .why-table td {
+    padding: 0.85rem 1.25rem 0.85rem 0;
+    border-bottom: 1px solid var(--rule);
+    color: var(--secondary);
+    vertical-align: top;
+    line-height: 1.65;
+  }
+
+  .why-table td:first-child {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  .why-table tr:last-child td { border-bottom: none; }
+
+  .why-table code {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    background: var(--mono-bg);
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+    color: var(--ink);
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Closing
+  ───────────────────────────────────────────────────────────────────── */
+  .closing {
+    margin-top: 4.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .closing p {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--secondary);
+    max-width: 440px;
+    margin: 0 auto 1.5rem;
+    line-height: 1.8;
+  }
+
+  .closing-mark {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Responsive — Tablet ≤ 760px
+  ───────────────────────────────────────────────────────────────────── */
+  @media (max-width: 760px) {
+    .page { padding: 2.5rem 1.5rem 5rem; }
+    h2 { font-size: 1.3rem; }
+    .shift-q { font-size: 1rem; }
+    .epigraph p { font-size: 1.05rem; }
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Responsive — Mobile ≤ 600px
+  ───────────────────────────────────────────────────────────────────── */
+  @media (max-width: 600px) {
+    html { font-size: 15px; }
+
+    .page { padding: 1.75rem 1.1rem 4rem; }
+
+    .site-header { padding-bottom: 1.75rem; margin-bottom: 2rem; }
+    .site-header h1 { font-size: 1.75rem; }
+    .header-sub { font-size: 0.9rem; }
+
+    .epigraph { margin-bottom: 2.5rem; padding: 0; }
+    .epigraph p { font-size: 1rem; }
+
+    .content-section { margin-bottom: 2.75rem; }
+    h2 { font-size: 1.2rem; }
+    p { font-size: 0.93rem; }
+
+    /* Shift — stack vertically */
+    .shift-grid { grid-template-columns: 1fr; }
+    .shift-cell { padding: 1.25rem; }
+    .shift-q { font-size: 1rem; }
+
+    /* Three questions */
+    .tq-list { gap: 1.4rem; }
+    .tq-item { grid-template-columns: 2rem 1fr; gap: 0.6rem; }
+    .tq-num  { width: 2rem; height: 2rem; font-size: 0.875rem; }
+    .tq-title { font-size: 1rem; }
+    .tq-desc { font-size: 0.875rem; }
+
+    /* Framework card */
+    .fc-quadrants { grid-template-columns: 1fr; }
+    .fc-q { padding: 1.1rem 1.25rem 1.3rem; }
+    .fc-feature-row { flex-direction: column; gap: 0.35rem; padding: 1rem 1.25rem; }
+    .fc-feature-input { width: 100%; font-size: 1rem; }
+    .fc-footer p { font-size: 11.5px; }
+
+    /* Code */
+    .code-wrap { border-radius: 7px; margin: 1rem 0; }
+    .code-header { padding: 0.5rem 0.9rem; }
+    pre.code-block { font-size: 11.5px; padding: 1rem; line-height: 1.9; }
+
+    /* Insight */
+    .insight { padding: 1rem 1.1rem; }
+    .insight p { font-size: 0.93rem; }
+
+    /* Why table */
+    .why-table { min-width: 440px; font-size: 13px; }
+
+    /* Closing */
+    .closing { margin-top: 3rem; padding-top: 2rem; }
+    .closing p { font-size: 1rem; }
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Responsive — Small phones ≤ 400px
+  ───────────────────────────────────────────────────────────────────── */
+  @media (max-width: 400px) {
+    html { font-size: 14px; }
+    .page { padding: 1.5rem 0.9rem 3.5rem; }
+    pre.code-block { font-size: 11px; padding: 0.85rem 0.9rem; }
+    .code-dots span { width: 8px; height: 8px; }
+    .shift-cell { padding: 1rem 1rem 1.2rem; }
+    .fc-q { padding: 1rem 1rem 1.15rem; }
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Reduced motion
+  ───────────────────────────────────────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    body, .fc-feature-input { transition: none; }
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Print
+  ───────────────────────────────────────────────────────────────────── */
+  @media print {
+    :root {
+      --bg: #fff;
+      --surface: #fff;
+      --lift: #f5f5f5;
+      --border: #ccc;
+      --rule: #ddd;
+      --ink: #000;
+      --secondary: #333;
+      --muted: #666;
+      --gold: #7A5A0A;
+      --gold-bg: #fffbe8;
+      --mono-bg: #f5f5f5;
+      --blue: #1a3a8f;
+      --green: #0a5c28;
+    }
+
+    .back-link { display: none; }
+    .skip-link { display: none; }
+
+    body { font-size: 12pt; line-height: 1.6; }
+
+    .page { max-width: 100%; padding: 0; }
+
+    .shift-grid, .fc-quadrants { grid-template-columns: 1fr 1fr; }
+
+    .code-wrap { box-shadow: none; border: 1px solid #ccc; }
+    pre.code-block { white-space: pre-wrap; word-break: break-word; font-size: 9pt; }
+
+    h2 { page-break-after: avoid; }
+    .content-section { page-break-inside: avoid; }
+  }
+  </style>
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <!-- Back to portfolio -->
+  <a class="back-link" href="/">&larr; devamhatre.cloud</a>
+
+  <div class="page">
+
+    <!-- ── Header ─────────────────────────────────────────────────── -->
+    <header class="site-header">
+      <p class="eyebrow" aria-hidden="true">A Developer's Philosophy</p>
+      <h1>The Architectural Mind</h1>
+      <p class="header-sub">How to think in systems before you write a single line of code</p>
+    </header>
+
+    <!-- ── Epigraph ───────────────────────────────────────────────── -->
+    <blockquote class="epigraph">
+      <p>"The question you ask first determines the architecture you end up with. Change the question — and the entire structure changes with it."</p>
+    </blockquote>
+
+    <!-- ── Main content ───────────────────────────────────────────── -->
+    <main id="main">
+
+      <!-- I: The Shift -->
+      <section class="content-section" aria-labelledby="s1">
+        <div class="section-label" aria-hidden="true">I &mdash; The Mental Shift</div>
+        <h2 id="s1">One question separates how a junior developer thinks from how a senior thinks.</h2>
+        <p>It is not about knowing more patterns. It is not about years of experience. It is the question that fires first — before any file is opened, before any component is named.</p>
+
+        <div class="shift-grid" role="group" aria-label="Junior vs senior question comparison">
+          <div class="shift-cell junior">
+            <div class="shift-badge">Junior Developer Asks</div>
+            <div class="shift-q">"How do I build this feature?"</div>
+          </div>
+          <div class="shift-cell senior">
+            <div class="shift-badge">Senior Developer Asks</div>
+            <div class="shift-q">"What is always true about this feature, regardless of how I build it?"</div>
+          </div>
+        </div>
+
+        <aside class="insight" style="margin-top:1.75rem;">
+          <p>The junior's question leads immediately to implementation. The senior's question leads first to the domain — the stable, unchanging core — and then to implementation that can survive the next sprint, and the one after that.</p>
+        </aside>
+      </section>
+
+      <!-- II: Three Questions -->
+      <section class="content-section" aria-labelledby="s2">
+        <div class="section-label" aria-hidden="true">II &mdash; Before You Touch a File</div>
+        <h2 id="s2">Sit with these three questions until you can answer them on paper.</h2>
+        <p>Not in code. On paper. If you cannot answer them in plain language, you do not understand the domain yet — and any code you write will need to be restructured when the understanding arrives.</p>
+
+        <ol class="tq-list" role="list">
+          <li class="tq-item">
+            <div class="tq-num" aria-hidden="true">1</div>
+            <div>
+              <div class="tq-title">What is always true here?</div>
+              <p class="tq-desc">These are your <strong>invariants</strong>. Things that hold regardless of implementation. A teacher always assesses a student. Evidence is always collected. A result is always saved. These become your <strong>domain layer</strong> — your types, your contracts. The most stable layer of the system. It imports nothing from React, nothing from any framework.</p>
+            </div>
+          </li>
+          <li class="tq-item">
+            <div class="tq-num" aria-hidden="true">2</div>
+            <div>
+              <div class="tq-title">What differs across instances of this feature?</div>
+              <p class="tq-desc">These are your <strong>variation points</strong>. <em>How</em> evidence is captured differs. <em>Which</em> AI analyzes it differs. <em>What</em> the UI looks like differs. These become your discriminated union arms, your pluggable components — the parts that can change without touching the stable core. Adding a new variant touches zero existing files.</p>
+            </div>
+          </li>
+          <li class="tq-item">
+            <div class="tq-num" aria-hidden="true">3</div>
+            <div>
+              <div class="tq-title">What is the direction of dependency?</div>
+              <p class="tq-desc">The <strong>stable thing must never depend on the unstable thing.</strong> Domain must not import from React. Use case hooks must not import components. If the most stable layer depends on the least stable, every sprint that changes the UI breaks the core. Dependencies always point inward — toward stability.</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <!-- III: The Framework -->
+      <section class="content-section" aria-labelledby="s3">
+        <div class="section-label" aria-hidden="true">III &mdash; The Framework</div>
+        <h2 id="s3">Four questions that produce an architecture — not just a plan.</h2>
+        <p>Fill this in before writing any code for a new feature. Not as a formality — as a design act. If any quadrant is blank, the feature is not ready to build yet. You are missing understanding, not code.</p>
+
+        <div class="framework-card" role="form" aria-label="Feature design template">
+          <div class="fc-header">
+            <div class="fc-header-dot" aria-hidden="true"></div>
+            <div class="fc-header-label">Feature Design Template</div>
+          </div>
+
+          <div class="fc-feature-row">
+            <label class="fc-feature-lbl" for="featureName">Feature</label>
+            <input class="fc-feature-input" id="featureName" type="text"
+              placeholder="Name the feature in plain language…" spellcheck="false"
+              autocomplete="off">
+          </div>
+
+          <div class="fc-quadrants">
+            <div class="fc-q">
+              <div class="fc-q-title">What is always true?</div>
+              <div class="fc-q-sub">Invariants → Domain layer (types, contracts)</div>
+              <div class="fc-lines" aria-hidden="true">
+                <div class="fc-line"></div>
+                <div class="fc-line"></div>
+                <div class="fc-line"></div>
+              </div>
+            </div>
+            <div class="fc-q">
+              <div class="fc-q-title">What varies?</div>
+              <div class="fc-q-sub">Variation points → Discriminated union arms</div>
+              <div class="fc-lines" aria-hidden="true">
+                <div class="fc-line"></div>
+                <div class="fc-line"></div>
+                <div class="fc-line"></div>
+              </div>
+            </div>
+            <div class="fc-q">
+              <div class="fc-q-title">What orchestrates the rules?</div>
+              <div class="fc-q-sub">Business logic → Use case hook</div>
+              <div class="fc-lines" aria-hidden="true">
+                <div class="fc-line"></div>
+                <div class="fc-line"></div>
+                <div class="fc-line"></div>
+              </div>
+            </div>
+            <div class="fc-q">
+              <div class="fc-q-title">What just displays?</div>
+              <div class="fc-q-sub">Render only → UI component</div>
+              <div class="fc-lines" aria-hidden="true">
+                <div class="fc-line"></div>
+                <div class="fc-line"></div>
+                <div class="fc-line"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="fc-footer">
+            <p>If you can fill all four quadrants in plain language, you already have the architecture. The code becomes transcription.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- IV: The Flutter Test -->
+      <section class="content-section" aria-labelledby="s4">
+        <div class="section-label" aria-hidden="true">IV &mdash; The Flutter Test</div>
+        <h2 id="s4">Before putting logic in a component, ask: would I keep this if we rebuilt in Flutter?</h2>
+        <p>If yes — it belongs in the use case layer. It is business logic, and it belongs in a hook that can be tested with <code>renderHook</code> and zero native mocks. If no — it is display logic, and it belongs in the UI layer.</p>
+
+        <div class="code-wrap">
+          <div class="code-header" aria-hidden="true">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">TypeScript</span>
+          </div>
+<pre class="code-block"><code><span class="cm">// ❌ Fails the Flutter test — UI makes a decision</span>
+<span class="kw">if</span> (isFormValid && !isSubmitting) {
+  submitAssessment();    <span class="cm">// component is deciding when to submit</span>
+}
+
+<span class="cm">// ✅ Passes the Flutter test — UI reports; use case layer decides</span>
+onSubmitPressed();       <span class="ok">// hook owns the guard logic, the timing, the ref</span></code></pre>
+        </div>
+
+        <aside class="insight">
+          <p>Tell, don't ask. The UI reports what happened — a button was pressed, a recording ended. It never inspects state and decides what to do. The use case layer owns every decision.</p>
+        </aside>
+      </section>
+
+      <!-- V: The Enforcement Test -->
+      <section class="content-section" aria-labelledby="s5">
+        <div class="section-label" aria-hidden="true">V &mdash; The Enforcement Test</div>
+        <h2 id="s5">Every time you write a type, ask: is TypeScript enforcing this, or am I relying on discipline?</h2>
+        <p>Discipline fails. TypeScript does not forget. If correctness depends on every developer always remembering to check a nullable field, that check will eventually be missed — at 2am, in production, on a student's record.</p>
+
+        <div class="code-wrap">
+          <div class="code-header" aria-hidden="true">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">TypeScript</span>
+          </div>
+<pre class="code-block"><code><span class="cm">// ❌ Discipline-based — flat bag. TypeScript cannot help here.</span>
+<span class="kw">type</span> CollectedEvidence = {
+  audioUrl?:      string | null
+  imageUrl?:      string | null    <span class="cm">// ~40% of fields set by each consumer</span>
+  selectedLevel?: Level  | null    <span class="cm">// the rest are silently undefined</span>
+  durationSec:    number
+}
+
+<span class="cm">// ✅ Enforcement-based — discriminated union. TypeScript catches the bug.</span>
+<span class="kw">type</span> CollectedEvidence =
+  | { type: <span class="str">'audio'</span>;       audioUrl: string;     durationSec: number }
+  | { type: <span class="str">'photo'</span>;       imageUrl: string;     durationSec: number }
+  | { type: <span class="str">'teacher'</span>;     selectedLevel: Level; durationSec: number }
+  | { type: <span class="str">'interactive'</span>; selectedLevel: Level; durationSec: number }</code></pre>
+        </div>
+
+        <p>A discriminated union where each arm is complete means TypeScript catches the bug — not QA, not a toast in production, not a teacher whose student was graded on a stale value.</p>
+      </section>
+
+      <!-- VI: Why This Sticks -->
+      <section class="content-section" aria-labelledby="s6">
+        <div class="section-label" aria-hidden="true">VI &mdash; Why Experienced Engineers Think This Way</div>
+        <h2 id="s6">They are not smarter. They have been burned more times.</h2>
+        <p>Architecture is not cleverness. It is accumulated scar tissue, written down so the next person does not get the same wound.</p>
+
+        <div class="why-wrap">
+          <table class="why-table">
+            <caption class="sr-only">Common anti-patterns and their real-world consequences</caption>
+            <thead>
+              <tr>
+                <th scope="col">The shortcut taken</th>
+                <th scope="col">What actually happened</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Flat nullable bag</td>
+                <td>Bug at 2am because one consumer didn't fill the field everyone assumed was always set. Manual DB fix. Embarrassment.</td>
+              </tr>
+              <tr>
+                <td>Business rule in a component</td>
+                <td>Fixed in 2 of 3 places. The third crashed a real user's session three months later during a demo.</td>
+              </tr>
+              <tr>
+                <td><code>useState</code> as a submit guard</td>
+                <td>Rapid double-tap wrote the same record twice on the same student. Support ticket. Manual cleanup.</td>
+              </tr>
+              <tr>
+                <td><code>||</code> on a numeric field</td>
+                <td>Valid <code>0</code> threshold silently became <code>null</code>. The backend applied its own default. Wrong students were promoted for weeks.</td>
+              </tr>
+              <tr>
+                <td>No <code>response.ok</code> check</td>
+                <td>HTTP error silently parsed as JSON. Garbage written to the DB. No error in the logs. Found during an audit.</td>
+              </tr>
+              <tr>
+                <td><code>reject(string)</code> in Promises</td>
+                <td>The actual backend error reason was discarded at the callsite. Teachers saw a generic toast. Nobody knew why saves were failing.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main><!-- /#main -->
+
+    <!-- ── Closing ─────────────────────────────────────────────────── -->
+    <footer class="closing">
+      <p>The assessment feature is not a special case. The next feature can be approached exactly the same way. The question is the same. The layers are the same. The toolbox is the same.</p>
+      <span class="closing-mark">Ask the question first. The rest follows.</span>
+    </footer>
+
+  </div><!-- /.page -->
+
+</body>
+</html>
